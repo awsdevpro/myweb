@@ -5,7 +5,7 @@ pipeline{
 		PATH = "${PATH}:${getMavenPath()}"
 	}
 	stages{
-	
+	/*
 		stage('SCM - Checkout'){
 			steps{
 				git url: 'https://github.com/javahometech/myweb'
@@ -13,7 +13,7 @@ pipeline{
 			}
 		}
 		
-	
+	*/
 	    stage('sonar and maven'){
 			parallel{
 				stage('Sonar Report'){
