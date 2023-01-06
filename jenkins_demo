@@ -1,0 +1,57 @@
+pipeline{
+	agent any
+	
+	environment {
+		PATH = "${PATH}:${getMavenPath()}"
+	}
+	stages{
+	
+		stage('SCM - Checkout'){
+			steps{
+				git url: 'https://github.com/javahometech/myweb'
+			
+			}
+		}
+		
+	
+	    stage('sonar and maven'){
+			parallel{
+				stage('Sonar Report'){
+					steps{
+						withSonarQubeEnv('sonar-6') {
+							sh "mvn sonar:sonar"
+							
+					    }
+						
+						timeout(time: 1, unit: 'HOURS') {
+								script{
+									def qg = waitForQualityGate()
+									if (qg.status != 'OK') {
+										error "Pipeline aborted due to quality gate failure: ${qg.status}"
+									}
+								}
+						}
+					
+					}
+				
+				}
+				
+				stage('Maven Build'){
+					steps{
+					
+						sh "mvn clean package"
+					}
+				
+				}
+			
+			}
+		
+		}	
+    }
+
+    def getMavenPath(){
+	def mvnHome = tool name: 'maven-3', type: 'maven'
+	return "${mvnHome}/bin"
+}
+
+}
